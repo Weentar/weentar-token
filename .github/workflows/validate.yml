@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+
+jobs:
+
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      - name: Setup Node.js environment
+        run: sudo apt-get update && sudo apt-get install nodejs npm && sudo npm install -g npm@latest n && sudo n latest
+      
+      - name: check versions
+        run: node -v && npm -v
+      
+      - name: where am I
+        run: pwd && ls -la
+
+      # Runs a single command using the runners shell
+      - name: install dependencies
+        run: npm install 
+
+      # Runs a set of commands using the runners shell
+      - name: run tests
+        run: npx hardhat compile && npx hardhat test
