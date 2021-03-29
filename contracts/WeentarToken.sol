@@ -26,8 +26,8 @@ contract WeentarToken is BEP20 {
         return _admin;
     }
 
-    constructor(uint256 initalSupply, uint256 totalTokens ) BEP20("Weentar Token", "WTR", 18) {
-        _mint(owner(), initalSupply);
+    constructor( uint256 totalTokens) BEP20("Weentar Token", "WTR", 18) {
+        _mint(owner(), (totalTokens.mul(3)).div(10));
         _totalTokens = totalTokens;
     }
 
