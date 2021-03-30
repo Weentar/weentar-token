@@ -91,7 +91,7 @@ describe("Token ", () => {
 
         
 
-        it("invalid mint by not authorized address", async () => {
+        it("invalid mint by unauthorized address", async () => {
             // onlyAdmin check
            await expect( token.connect(owner).mint()).to.be.revertedWith("WeentarToken: Caller is not the admin");   
     
