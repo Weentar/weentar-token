@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+const { ethers } = require("hardhat");
 import chai from "chai";
 import { solidity } from "ethereum-waffle";
 import { WeentarToken } from "../typechain";
@@ -17,16 +17,17 @@ describe("BEP20 defaults", () => {
     before(async () => {
         accounts = await ethers.getSigners();
         owner = accounts[0];
-        const hundretBillion: BigNumber = ethers.utils.parseEther("100000000000000");
+        const hundretBillion: BigNumber = ethers.utils.parseEther("100000000000");
+        const thirtyBillion: BigNumber = ethers.utils.parseEther("30000000000");
         const tokenFactory = await ethers.getContractFactory("WeentarToken", owner);
         token = (await tokenFactory.deploy(hundretBillion)) as WeentarToken;
         await token.deployed();
 
         expect(await token.name()).to.eq("Weentar Token");
-        expect(await token.symbol()).to.eq("WTR");
-        expect(await token.getOwner()).to.eq(owner.address);
+        expect(await token.symbol()).to.eq("$WNTR");
+        expect(await token.owner()).to.eq(owner.address);
         expect(await token.decimals()).to.eq(18);
-        expect(await token.totalSupply()).to.eq(hundretBillion);
+        expect(await token.totalSupply()).to.eq(thirtyBillion);
 
         await token.connect(owner).transfer(accounts[1].address, 100);
         await token.connect(owner).transfer(accounts[2].address, 100);
