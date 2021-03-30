@@ -4,7 +4,7 @@ import "./BEP20.sol";
 
 contract WeentarToken is BEP20 {
 
-    uint256 private _totalTokens;
+    uint256 private _maxSupply;
     address private _admin;
     uint256 private _day;
     uint256 private _startTimestamp;
@@ -25,9 +25,10 @@ contract WeentarToken is BEP20 {
         return _admin;
     }
 
-    constructor( uint256 totalTokens) BEP20("Weentar Token", "WTR", 18) {
-        _mint(owner(), (totalTokens * 3) / 10);
-        _totalTokens = totalTokens;
+    constructor( uint256 maxSupply) BEP20("Weentar Token", "$WNTR", 18) {
+        // 30% of max suppy will be minted on genesis
+        _mint(owner(), (maxSupply * 3) / 10);
+        _maxSupply = maxSupply;
     }
 
     function mint() public onlyAdmin returns (uint256){
@@ -36,22 +37,22 @@ contract WeentarToken is BEP20 {
         uint256 currentDay = getDay();
         if(_day < currentDay){
             if (_day < 90) {
-                amountToMint = (_totalTokens * 10) / 10000;
+                amountToMint = (_maxSupply * 10) / 10000;
             }
             else if (_day < 365){
-                amountToMint = (_totalTokens * 5) / 10000;
+                amountToMint = (_maxSupply * 5) / 10000;
             }
             else if (_day < 730){
-                amountToMint = (_totalTokens * 4) / 10000;
+                amountToMint = (_maxSupply * 4) / 10000;
             }
             else if (_day < 1095){
-                amountToMint = ( _totalTokens * 3) / 10000;
+                amountToMint = ( _maxSupply * 3) / 10000;
             }
             else if (_day < 1460){
-                amountToMint = (_totalTokens * 2) / 10000;
+                amountToMint = (_maxSupply * 2) / 10000;
             }
             else if (_day < 2900){
-                amountToMint = _totalTokens / 10000;
+                amountToMint = _maxSupply / 10000;
             }
 
             _mint(getAdmin(), amountToMint);
