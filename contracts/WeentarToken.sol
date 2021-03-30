@@ -1,7 +1,6 @@
 pragma solidity 0.8.1;
 
 import "./BEP20.sol";
-import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
 
 contract WeentarToken is BEP20 {
 
@@ -27,7 +26,7 @@ contract WeentarToken is BEP20 {
     }
 
     constructor( uint256 totalTokens) BEP20("Weentar Token", "WTR", 18) {
-        _mint(owner(), (totalTokens.mul(3)).div(10));
+        _mint(owner(), (totalTokens * 3) / 10);
         _totalTokens = totalTokens;
     }
 
@@ -37,26 +36,26 @@ contract WeentarToken is BEP20 {
         uint256 currentDay = getDay();
         if(_day < currentDay){
             if (_day < 90) {
-                amountToMint = _totalTokens.mul(10).div(10000);
+                amountToMint = (_totalTokens * 10) / 10000;
             }
             else if (_day < 365){
-                amountToMint = _totalTokens.mul(5).div(10000);
+                amountToMint = (_totalTokens * 5) / 10000;
             }
             else if (_day < 730){
-                amountToMint = _totalTokens.mul(4).div(10000);
+                amountToMint = (_totalTokens * 4) / 10000;
             }
             else if (_day < 1095){
-                amountToMint = _totalTokens.mul(3).div(10000);
+                amountToMint = ( _totalTokens * 3) / 10000;
             }
             else if (_day < 1460){
-                amountToMint = _totalTokens.mul(2).div(10000);
+                amountToMint = (_totalTokens * 2) / 10000;
             }
             else if (_day < 2900){
-                amountToMint = _totalTokens.mul(1).div(10000);
+                amountToMint = _totalTokens / 10000;
             }
 
             _mint(getAdmin(), amountToMint);
-            _day = _day.add(1);
+            _day = _day + 1;
         }
 
         return amountToMint;
@@ -71,7 +70,7 @@ contract WeentarToken is BEP20 {
     }
 
     function getDay() internal view returns (uint256){
-        uint256 day = ((block.timestamp).sub(_startTimestamp)).div(86400);
+        uint256 day = (block.timestamp - _startTimestamp) / 86400;
         return day;
 
     }
