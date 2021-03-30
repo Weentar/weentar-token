@@ -1,8 +1,9 @@
 pragma solidity 0.8.1;
 
-import "./BEP20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
 
-contract WeentarToken is BEP20 {
+contract WeentarToken is ERC20, Ownable{
 
     uint256 private _maxSupply;
     address private _admin;
@@ -10,25 +11,24 @@ contract WeentarToken is BEP20 {
     uint256 private _startTimestamp;
     bool private _startMinting;
 
-
-
     modifier onlyAdmin() {
         require(getAdmin() == _msgSender(), "WeentarToken: Caller is not the admin");
         _;
+    }
+
+    constructor( uint256 maxSupply) ERC20("Weentar Token", "$WNTR") {
+        // 30% of max suppy will be minted on genesis
+        _mint(owner(), (maxSupply * 3) / 10);
+        _maxSupply = maxSupply;
     }
 
     function setAdmin(address admin) public onlyOwner returns (bool){
         _admin = admin;
         return true;
     }
+    
     function getAdmin() public view returns (address){
         return _admin;
-    }
-
-    constructor( uint256 maxSupply) BEP20("Weentar Token", "$WNTR", 18) {
-        // 30% of max suppy will be minted on genesis
-        _mint(owner(), (maxSupply * 3) / 10);
-        _maxSupply = maxSupply;
     }
 
     function mint() public onlyAdmin returns (uint256){
@@ -70,9 +70,14 @@ contract WeentarToken is BEP20 {
         return true;
     }
 
-    function getDay() internal view returns (uint256){
+    function getDay() public view returns (uint256){
         uint256 day = (block.timestamp - _startTimestamp) / 86400;
         return day;
+
+    }
+
+    function getStartTimestamp() public view returns (uint256){
+        return _startTimestamp;
 
     }
 
