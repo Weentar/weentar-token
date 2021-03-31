@@ -22,6 +22,10 @@ contract WeentarToken is ERC20, Ownable{
         _maxSupply = maxSupply;
     }
 
+    function getOwner() public view returns (address){
+        return owner();
+    }
+
     function setAdmin(address admin) public onlyOwner returns (bool){
         _admin = admin;
         return true;
@@ -34,7 +38,7 @@ contract WeentarToken is ERC20, Ownable{
     function mint() public onlyAdmin returns (uint256){
         require(_startMinting, "WeentarToken: Tokens minting has not started yet");
         uint256 amountToMint;
-        uint256 currentDay = getDay();
+        uint256 currentDay = getCurrentDay();
         if(_day < currentDay){
             if (_day < 90) {
                 amountToMint = (_maxSupply * 10) / 10000;
@@ -70,7 +74,7 @@ contract WeentarToken is ERC20, Ownable{
         return true;
     }
 
-    function getDay() public view returns (uint256){
+    function getCurrentDay() public view returns (uint256){
         uint256 day = (block.timestamp - _startTimestamp) / 86400;
         return day;
 
@@ -80,6 +84,19 @@ contract WeentarToken is ERC20, Ownable{
         return _startTimestamp;
 
     }
+
+    // for testing to set day
+    function setDay(uint256 day) public  returns (bool){
+        _day = day;
+        return true;
+    }
+
+    // for testing to retrieve _day value
+    function getDay() public view  returns (uint256){
+        return _day;
+    }
+
+
 
 
 
