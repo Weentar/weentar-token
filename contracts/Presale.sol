@@ -104,7 +104,7 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
         _openingTime = openingTime;
         _closingTime = closingTime;
     }
-    
+
     /**
      * @dev fallback function ***DO NOT OVERRIDE***
      * Note that other contracts will transfer funds with a base gas stipend
@@ -287,6 +287,7 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
      * @param beneficiary Recipient of the token purchase
      */
     function buyTokens(address beneficiary) public nonReentrant payable {
+        require(_phase > 0, "Presale: Presale has not started");
         uint256 weiAmount = msg.value;
         _preValidatePurchase(beneficiary, weiAmount);
 
@@ -315,7 +316,7 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal onlyWhileOpen view {
         require(beneficiary != address(0), "Presale: beneficiary is the zero address");
         require(weiAmount != 0, "Presale: weiAmount is 0");
-        require(weiRaised(_phase) + weiAmount <= _cap, "CappedPresale: cap exceeded");
+        require(weiRaised(_phase) + weiAmount <= _cap, "Presale: cap exceeded");
         this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
     }
 
