@@ -17,10 +17,9 @@ describe("BEP20 defaults", () => {
     before(async () => {
         accounts = await ethers.getSigners();
         owner = accounts[0];
-        const hundretBillion: BigNumber = ethers.utils.parseEther("100000000000");
         const thirtyBillion: BigNumber = ethers.utils.parseEther("30000000000");
         const tokenFactory = await ethers.getContractFactory("WeentarToken", owner);
-        token = (await tokenFactory.deploy(hundretBillion)) as WeentarToken;
+        token = (await tokenFactory.deploy(thirtyBillion)) as WeentarToken;
         await token.deployed();
 
         expect(await token.name()).to.eq("Weentar Token");
