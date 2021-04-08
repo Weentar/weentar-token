@@ -2,7 +2,7 @@ import { HardhatUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-typechain";
 
-//const { mnemonic } = require('./secrets.json');
+//const { pkey } = require('./secrets.json');
 
 const config: HardhatUserConfig = {
     defaultNetwork: "hardhat", 
@@ -15,6 +15,15 @@ const config: HardhatUserConfig = {
             chainId: 97,
             gasPrice: 20000000000,
             //accounts: {mnemonic: mnemonic}
+        },
+        bsc_mainnet: {
+            url: "https://bsc-dataseed.binance.org",
+            chainId: 56,
+            gasPrice: 20000000000,
+            //accounts: [pkey]
+        },
+        ganache: {
+            url: "http://127.0.0.1:7545",
         }
     }
 };
