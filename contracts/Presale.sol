@@ -38,7 +38,7 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
     }  
 
     function phaseStartTimestamp() public view returns (uint256) {
-        return _phaseEndTimestamp;
+        return _phaseStartTimestamp;
     }
 
     function phaseEndTimestamp() public view returns (uint256) {
