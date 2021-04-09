@@ -10,6 +10,8 @@ import "./ReentrancyGuard.sol";
 contract WeentarPresale is Context, Ownable, ReentrancyGuard {
 
     IBEP20 private _token;
+    address private _wallet;
+    mapping(uint256 => uint256) _weiRaised;
 
     // phase detail
     uint256 private _tokenPrice;
@@ -18,8 +20,9 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
     uint256 private _phaseStartTimestamp; //epoch in seconds
     uint256 private _phaseEndTimestamp; //epoch in seconds
 
-    constructor(address token) {
+    constructor(address token, address wallet) {
         _token = IBEP20(token);
+        _wallet = wallet;
     }
 
     /******************************************************
@@ -50,18 +53,32 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
                 block.timestamp < _phaseEndTimestamp);
     }
 
+    function currentPhase() public view returns (uint256){
+        return _phase;
+    }
+
+    function weiRaised(uint256 phase) public view returns (uint256){
+        return _weiRaised[phase];
+    }
+
+    function presaleWallet() public view returns (address){
+        return _wallet;
+    }
+
+
+
     /**
      * Purchase token. Provided amount is the total amount of token (without digits).
      * This function has a non-reentrancy guard, so it shouldn't be called by
      * another `nonReentrant` function.
      */
     function purchaseToken(uint256 amount) public payable nonReentrant {
-        require(_msgSender() != address(0), "Sale: AddressZero cannot purchase.");
-        require(phaseIsActive(), "Sale: Current phase is not active.");
-        require(amount <= _phaseSupplyLeft, "Sale: Amount exceeds remaining supply of the current phase.");
+        require(_msgSender() != address(0), "WeentarPresale: AddressZero cannot purchase.");
+        require(phaseIsActive(), "WeentarPresale: Current phase is not active.");
+        require(amount * 1 ether <= _phaseSupplyLeft, "WeentarPresale: Amount exceeds remaining supply of the current phase.");
         
         uint256 totalPrice = amount * _tokenPrice;
-        require(msg.value >= totalPrice, "Sale: Payment too low.");
+        require(msg.value >= totalPrice, "WeentarPresale: Payment too low.");
 
         _token.transfer(msg.sender, (amount * 1 ether));
         _phaseSupplyLeft = _phaseSupplyLeft - (amount * 1 ether);
@@ -83,13 +100,13 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
         _token.transfer(owner(), amount);
     }
 
-    function withdrawFunding() public onlyOwner {
-        address payable ownerPayable = payable(owner());
-        ownerPayable.transfer(address(this).balance);
+    function withdrawFunding() public {
+        address payable walletPayable = payable(_wallet);
+        walletPayable.transfer(address(this).balance);
     }
 
     function setCurrentPhase(uint256 supply, uint256 timestampStart, uint256 timestampEnd) public onlyOwner {
-        require(supply <= _token.balanceOf(address(this)));
+        require(supply <= _token.balanceOf(address(this)), "WeentarPresale: Supply value exceeds the token balance");
         _phaseSupplyTotal = supply;
         _phaseSupplyLeft = supply;
         _phaseStartTimestamp = timestampStart;
