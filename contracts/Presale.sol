@@ -75,12 +75,14 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
     function purchaseToken(uint256 amount) public payable nonReentrant {
         require(_msgSender() != address(0), "WeentarPresale: AddressZero cannot purchase.");
         require(phaseIsActive(), "WeentarPresale: Current phase is not active.");
+        require(tokenPrice() != 0, "WeentarPresale: Token Price is not set");
         require(amount * 1 ether <= _phaseSupplyLeft, "WeentarPresale: Amount exceeds remaining supply of the current phase.");
         
         uint256 totalPrice = amount * _tokenPrice;
         require(msg.value >= totalPrice, "WeentarPresale: Payment too low.");
 
         _token.transfer(msg.sender, (amount * 1 ether));
+        _weiRaised[_phase] = _weiRaised[_phase] + totalPrice;
         _phaseSupplyLeft = _phaseSupplyLeft - (amount * 1 ether);
 
         address payable client = payable(msg.sender);
@@ -107,10 +109,13 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
 
     function setCurrentPhase(uint256 supply, uint256 timestampStart, uint256 timestampEnd) public onlyOwner {
         require(supply <= _token.balanceOf(address(this)), "WeentarPresale: Supply value exceeds the token balance");
+        require(timestampStart >= block.timestamp, "WeentarPresale: opening time is before current time");
+        require(timestampEnd > timestampStart, "WeentarPresale: opening time is not before closing time");
         _phaseSupplyTotal = supply;
         _phaseSupplyLeft = supply;
         _phaseStartTimestamp = timestampStart;
         _phaseEndTimestamp = timestampEnd;
+        _phase += 1;
     }
 
  
