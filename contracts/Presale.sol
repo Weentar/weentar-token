@@ -65,8 +65,6 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
         return _wallet;
     }
 
-
-
     /**
      * Purchase token. Provided amount is the total amount of token (without digits).
      * This function has a non-reentrancy guard, so it shouldn't be called by
@@ -85,6 +83,9 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
         _weiRaised[_phase] = _weiRaised[_phase] + totalPrice;
         _phaseSupplyLeft = _phaseSupplyLeft - (amount * 1 ether);
 
+        address payable walletPayable = payable(_wallet);
+        walletPayable.transfer(totalPrice);
+
         address payable client = payable(msg.sender);
         client.transfer(msg.value - totalPrice);
     }
@@ -102,11 +103,6 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
         _token.transfer(owner(), amount);
     }
 
-    function withdrawFunding() public {
-        address payable walletPayable = payable(_wallet);
-        walletPayable.transfer(address(this).balance);
-    }
-
     function setCurrentPhase(uint256 supply, uint256 timestampStart, uint256 timestampEnd) public onlyOwner {
         require(supply <= _token.balanceOf(address(this)), "WeentarPresale: Supply value exceeds the token balance");
         require(timestampStart >= block.timestamp, "WeentarPresale: opening time is before current time");
@@ -117,6 +113,5 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
         _phaseEndTimestamp = timestampEnd;
         _phase += 1;
     }
-
  
 }
