@@ -14,6 +14,7 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
     mapping(uint256 => uint256) _weiRaised;
 
     // phase detail
+    uint256 private _phase;
     uint256 private _tokenPrice;
     uint256 private _phaseSupplyLeft;
     uint256 private _phaseSupplyTotal;
