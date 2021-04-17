@@ -2,7 +2,7 @@ import { HardhatUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-typechain";
 
-//const { pkey } = require('./secrets.json');
+//const { pkey } = require('./secret.json');
 
 const config: HardhatUserConfig = {
     defaultNetwork: "hardhat", 
