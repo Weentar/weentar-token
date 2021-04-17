@@ -86,7 +86,7 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
     function purchaseToken(address beneficiary) public payable nonReentrant {
         require(_msgSender() != address(0), "WeentarPresale: AddressZero cannot purchase.");
         require(phaseIsActive(), "WeentarPresale: Current phase is not active.");
-        require( msg.value >= 100000000000000000, "WeentarPresale: Minimum amount required to purchase tokens is 0.1 BNB");
+        require( msg.value >= 0.1 ether, "WeentarPresale: Minimum amount required to purchase tokens is 0.1 BNB");
 
         uint256 tokenValue = msg.value * _rate;
         require(tokenValue <= _phaseSupplyLeft, "WeentarPresale: Amount exceeds remaining supply of the current phase.");
