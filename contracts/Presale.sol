@@ -15,7 +15,8 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
 
     // phase detail
     uint256 private _phase;
-    uint256 private _tokenPrice;
+    uint256 private _cap;
+    uint256 private _rate;
     uint256 private _phaseSupplyLeft;
     uint256 private _phaseSupplyTotal;
     uint256 private _phaseStartTimestamp; //epoch in seconds
@@ -29,8 +30,12 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
     /******************************************************
      * INFO REGARDING THE CURRENT SALE PHASE
      ******************************************************/
-    function tokenPrice() public view returns (uint256) {
-        return _tokenPrice;
+    function rate() public view returns (uint256) {
+        return _rate;
+    }
+
+    function cap() public view returns (uint256) {
+        return _cap;
     }
 
     function phaseSupplyLeft() public view returns (uint256) {
@@ -66,29 +71,34 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
         return _wallet;
     }
 
+    function token() public view returns (IBEP20){
+        return _token;
+    }
+
+    fallback () external payable {
+        purchaseToken(_msgSender());
+    }
     /**
      * Purchase token. Provided amount is the total amount of token (without digits).
      * This function has a non-reentrancy guard, so it shouldn't be called by
      * another `nonReentrant` function.
      */
-    function purchaseToken(uint256 amount) public payable nonReentrant {
+    function purchaseToken(address beneficiary) public payable nonReentrant {
         require(_msgSender() != address(0), "WeentarPresale: AddressZero cannot purchase.");
         require(phaseIsActive(), "WeentarPresale: Current phase is not active.");
-        require(tokenPrice() != 0, "WeentarPresale: Token Price is not set");
-        require(amount * 1 ether <= _phaseSupplyLeft, "WeentarPresale: Amount exceeds remaining supply of the current phase.");
-        
-        uint256 totalPrice = amount * _tokenPrice;
-        require(msg.value >= totalPrice, "WeentarPresale: Payment too low.");
+        require( msg.value >= 100000000000000000, "WeentarPresale: Minimum amount required to purchase tokens is 0.1 BNB");
 
-        _token.transfer(msg.sender, (amount * 1 ether));
-        _weiRaised[_phase] = _weiRaised[_phase] + totalPrice;
-        _phaseSupplyLeft = _phaseSupplyLeft - (amount * 1 ether);
+        uint256 tokenValue = msg.value * _rate;
+        require(tokenValue <= _phaseSupplyLeft, "WeentarPresale: Amount exceeds remaining supply of the current phase.");
+
+        _token.transfer(beneficiary, tokenValue);
+        _weiRaised[_phase] = _weiRaised[_phase] + msg.value;
+        _phaseSupplyLeft = _phaseSupplyLeft - tokenValue;
 
         address payable walletPayable = payable(_wallet);
-        walletPayable.transfer(totalPrice);
+        walletPayable.transfer(msg.value);
 
-        address payable client = payable(msg.sender);
-        client.transfer(msg.value - totalPrice);
+     
     }
 
 
@@ -96,20 +106,18 @@ contract WeentarPresale is Context, Ownable, ReentrancyGuard {
      * OWNER SECTION
      **********************************************************/
 
-    function setTokenPrice(uint256 price) public onlyOwner {
-        _tokenPrice = price;
-    }
-
     function withdrawToken(uint256 amount) public onlyOwner {
         _token.transfer(owner(), amount);
     }
 
-    function setCurrentPhase(uint256 supply, uint256 timestampStart, uint256 timestampEnd) public onlyOwner {
-        require(supply <= _token.balanceOf(address(this)), "WeentarPresale: Supply value exceeds the token balance");
+    function setCurrentPhase(uint256 cap, uint rate, uint256 timestampStart, uint256 timestampEnd) public onlyOwner {
+        require(cap * rate <= _token.balanceOf(address(this)), "WeentarPresale: Supply value exceeds the token balance");
         require(timestampStart >= block.timestamp, "WeentarPresale: opening time is before current time");
         require(timestampEnd > timestampStart, "WeentarPresale: opening time is not before closing time");
-        _phaseSupplyTotal = supply;
-        _phaseSupplyLeft = supply;
+        _cap = cap;
+        _rate = rate;
+        _phaseSupplyTotal = cap * rate;
+        _phaseSupplyLeft = cap * rate;
         _phaseStartTimestamp = timestampStart;
         _phaseEndTimestamp = timestampEnd;
         _phase += 1;
